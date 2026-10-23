@@ -564,6 +564,7 @@ function configureProgressGuide(mode){
 function showProgressGuide(mode="intro"){
   if(progressGuideOpen())return;
   progressGuideMode=mode;configureProgressGuide(mode);
+  $("progressGuideBubble").scrollTop=0;
   $("progressGuideBackdrop").classList.remove("hidden");
   $("progressGuideBackdrop").setAttribute("aria-hidden","false");
   $("progressGuideBubble").classList.remove("hidden");
@@ -2140,7 +2141,9 @@ function resultData(){
 }
 function downloadResult(){
   const blob=new Blob([JSON.stringify(resultData(),null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${state.participantId}_simplified_flow.json`;a.click();URL.revokeObjectURL(url);
+  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${state.participantId}_simplified_flow.json`;a.hidden=true;document.body.appendChild(a);
+  try{a.click()}finally{a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}
+  document.querySelectorAll("[data-survey-status]").forEach(el=>{el.textContent="JSONの保存を開始しました。ブラウザのダウンロード一覧をご確認ください。"});
 }
 
 $("startButton").onclick=start;

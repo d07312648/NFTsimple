@@ -1023,6 +1023,10 @@ function setTradeGuideTarget(target){
   tradeGuideTarget=target||null;
   tradeGuideTarget?.classList.add("wallet-guide-highlight","pm-guide-highlight");
 }
+function formatTradeGuideDescription(description){
+  const highlights=["売買が成立すると、その手数料の一部が運営側に入ります。", "継続的な財源の確保に繋がります。", "所有者や取引履歴を記録し、本物であること（真正性）を証明できるNFTだからこそ実現できる仕組みです。", "例えば、NFTゲームでは、獲得したキャラクターやアイテムがNFTとなり、外部ウォレットに移してマーケットで他のユーザーと売買できます。", "レア度が高く高個体なものほど価格が高くなるといったように、資産性を持つようになります。"];
+  return highlights.reduce((html,text)=>html.replace(escapeHtml(text),`<strong class="trade-guide-emphasis">${escapeHtml(text)}</strong>`),escapeHtml(description));
+}
 function renderTradeGuideStep(){
   const step=TRADE_GUIDE_STEPS[tradeGuideStep],last=tradeGuideStep===TRADE_GUIDE_STEPS.length-1;
   setTradeGuideTarget(tradeGuideStepTarget(step));
@@ -1033,7 +1037,7 @@ function renderTradeGuideStep(){
   figure.alt=step.image?.alt||"";
   $("tradeGuideLabel").textContent=`${tradeGuideStep+1} / ${TRADE_GUIDE_STEPS.length} · ${step.label}`;
   $("tradeGuideTitle").textContent=step.title;
-  $("tradeGuideDescription").textContent=step.description;
+  $("tradeGuideDescription").innerHTML=formatTradeGuideDescription(step.description);
   $("tradeGuideDots").innerHTML=TRADE_GUIDE_STEPS.map((_,index)=>`<i class="${index<tradeGuideStep?"done":index===tradeGuideStep?"active":""}"></i>`).join("");
   $("tradeGuideNext").innerHTML=last?'はじめる <span aria-hidden="true">✓</span>':'次へ <span aria-hidden="true">→</span>';
   $("tradeGuide").scrollTop=0;
