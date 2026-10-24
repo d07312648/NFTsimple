@@ -30,7 +30,7 @@ const WALLET_SECURITY_GUIDE_STEPS = [
 const NFT_OWNERSHIP_GUIDE_STEPS = [
   {
     label:"1 / 2 · 購入完了",title:"NFTチケットがウォレットに追加されました",
-    body:"<p>ハイライトされているカードが、今回初めて購入したNFTです。この体験では疑似的にウォレットへ追加しています。カードを押すと、会場で開くチケットや保有者向け特典を確認できます。</p><ul><li><strong>使用後も記録として残り、1つのウォレットで管理できる</strong><span>使用済みになってもNFTチケットの見た目は変わらず、参加の記録として残ります。さまざまなイベントのチケットを、1つのウォレットでまとめて管理できます。</span></li></ul>",action:"詳細なNFTの説明を読む"
+    body:"<p>ハイライトされているカードが、今回初めて購入したNFTです。この体験では疑似的にウォレットへ追加しています。カードを押すと、会場で開くチケットや保有者向け特典を確認できます。</p><ul><li><strong>使用後も記録として残り、1つのウォレットで管理できる</strong><span><strong style='display:inline;color:#1769ff;font-size:inherit;font-weight:700;line-height:inherit'>使用済みになってもNFTチケットの見た目は変わらず、参加の記録として残ります。さまざまなイベントのチケットを、1つのウォレットでまとめて管理できます。</strong></span></li></ul>",action:"詳細なNFTの説明を読む"
   },
   {
     label:"ポイント 1 / 4 · 所有の記録",title:"NFTは1点ずつ識別して所有者を確認できます",
@@ -558,7 +558,7 @@ function configureProgressGuide(mode){
   $("progressGuideNote").textContent=completion?"「条件に応じて特典を付与する仕組み」を再現するため、各NFTチケットにゲームを用意しています。よろしければ、ゲームを楽しみながらNFTチケットを集めてみてください。また、マーケットではチケットを含む様々なNFTを売買できるようになっているので、興味があればぜひ体験してみてください。":"※チケット選択、決済、パスキー設定の順に進むと、NFTチケットがPassWalletへ自動で追加されます。";
   $("progressGuideScrollNote").classList.toggle("hidden",completion);
   $("progressGuideHintNote").innerHTML=completion?'<span aria-hidden="true">✓</span>最後に、アンケートへのご回答をお願いいたします。':'<span aria-hidden="true">?</span>操作に困ったら、各進捗の「？」をタップすると操作のヒントを見ることができます。';
-  $("progressGuideStart").innerHTML=completion?'閉じる <span aria-hidden="true">✓</span>':'閉じる <span aria-hidden="true">→</span>';
+  $("progressGuideStart").innerHTML=completion?'続けてマーケットを体験する <span aria-hidden="true">→</span>':'閉じる <span aria-hidden="true">→</span>';
 }
 
 function showProgressGuide(mode="intro"){
