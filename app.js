@@ -128,7 +128,7 @@ const missionHints = {
   select:{service:"Ticket Store",summary:"一般的な電子チケットと同じように、希望するイベントを一覧から選びます。",steps:["画面上部の「チケット購入」を開きます。","イベントの内容と日本円価格を確認します。","希望するチケットの「選択する」を押します。"],tip:"価格はチケットごとに異なります。ログインは不要です。",app:"market",tab:null,action:"チケットを選ぶ"},
   payment:{service:"Ticket Store",summary:"クレジットカードなど、使い慣れた日本円決済でお支払いします。",steps:["購入内容と金額を確認します。","支払い方法を1つ選びます。","表示された金額の支払いボタンを押します。"],tip:"実際の請求は発生せず、入力済みのテストカードを使用します。",app:"market",tab:null,action:"選択したチケットを確認する"},
   wallet:{service:"PassWallet",summary:"決済完了後、パスキー（顔認証や指紋認証）を設定すると、PassWalletのウォレットが作成されます。",steps:["決済完了後に表示される「パスキーを設定する」を押します。","顔認証または指紋認証の確認を完了します。","PassWalletのウォレットが自動で作成されます。"],tip:"パスワードや秘密鍵、シードフレーズの入力・保管は不要です。",app:"market",tab:null,action:"パスキーを設定する"},
-  acquire:{service:"PassWallet",summary:"ウォレット作成後、NFTチケットは自動でPassWalletへ追加されます。",steps:["チケット発行が完了するまで待ちます。","獲得画面から「PassWalletで確認する」を押します。"],tip:"専門的な承認や追加の手数料操作は必要ありません。",app:"wallet",tab:"wallet-nft",action:"PassWalletを開く"},
+  acquire:{service:"PassWallet",summary:"ウォレット作成後、NFTチケットは自動でPassWalletへ追加されます。",steps:["チケット発行が完了するまで待ちます。","獲得画面の「閉じる」を押します。","画面上部の「PassWallet」を開き、チケットを確認します。"],tip:"専門的な承認や追加の手数料操作は必要ありません。",app:"wallet",tab:"wallet-nft",action:"PassWalletを開く"},
   scan:{service:"PassWallet",summary:"会場でNFTチケットを開き、会場側に掲示されているQRコードを読み取ります。",steps:["画面上部の「PassWallet」を開き、保有チケットをタップします。","「会場でチケットを開く」を押します。","「会場のQRコードを読み取る」を押し、会場のQRコードを読み取ります。"],tip:"QRコードは研究用の疑似画面です。カメラは使用しません。",app:"wallet",tab:"wallet-nft",action:"保有チケットを開く"},
   admission:{service:"PassWallet",summary:"会場QRの読み取り後、パスキー（顔認証や指紋認証）で本人確認をすると、NFTチケットが使用済みになり入場できます。",steps:["「パスキーで認証して入場」を押します。","顔認証または指紋認証の確認を完了します。","NFTチケットが使用済みになり、入場が完了します。"],tip:"使用済みになったNFTチケットは再利用できません。",app:"wallet",tab:"wallet-nft",action:"保有チケットを開く"},
   trade:{service:"マーケット",summary:"NFTの売買ができるマーケットを開き、出品されているNFTを確認します。",steps:["画面上部の「マーケット」を押します。","表示される説明を「次へ」で最後まで読みます。","最後の説明で「はじめる」を押します。"],tip:"マーケットの説明を最後まで読み、「はじめる」を押すと、この進捗は完了します。購入や出品は必須ではありません。",app:"trade",tab:null,action:"マーケットを開く"}
@@ -1220,35 +1220,16 @@ function renderMission(){
   notifyNewlyCompletedMissions();
 }
 
-function resolveMissionHintTarget(key){
-  const hint=missionHints[key];if(!hint)return null;
-  if(key==="wallet"&&state.paymentStatus==="awaiting_passkey")return {app:"market",tab:null,action:"パスキーを設定する"};
-  if((key==="payment"||key==="wallet")&&!state.selectedTicketId)return {app:"market",tab:null,action:"先にチケットを選ぶ"};
-  if(key==="wallet"&&!state.paymentCompleted)return {app:"market",tab:null,action:"先に決済する"};
-  if((key==="scan"||key==="admission")&&!state.ownedNfts.length)return {app:"market",tab:null,action:"先にNFTチケットを取得する"};
-  return {app:hint.app,tab:hint.tab,action:hint.action};
-}
-
 function openMissionHint(key){
   const hint=missionHints[key],mission=missions.find(([missionKey])=>missionKey===key);if(!hint||!mission)return;
-  const done=missionStatus(key),target=resolveMissionHintTarget(key);
+  const done=missionStatus(key);
   log("mission_hint_opened",{mission:key,completed:done});
   openModal("操作ヒント",mission[1],`
     <div class="mission-hint-summary"><span class="mission-hint-service">${escapeHtml(hint.service)}</span><span class="mission-hint-state ${done?"done":""}">${done?"✓ 完了済み":"操作を確認"}</span><p>${escapeHtml(hint.summary)}</p></div>
     <ol class="mission-hint-steps">${hint.steps.map((step,index)=>`<li><span>${index+1}</span><p>${escapeHtml(step)}</p></li>`).join("")}</ol>
     <div class="mission-hint-tip"><span>TIP</span><p>${escapeHtml(hint.tip)}</p></div>
-    <button id="missionHintGo" class="mission-hint-go ${target.app}" type="button">${escapeHtml(target.action)} <span>→</span></button>`);
-  $("missionHintGo").onclick=()=>goToMissionHintTarget(key);
-}
-
-function goToMissionHintTarget(key){
-  const target=resolveMissionHintTarget(key);if(!target)return;
-  closeModal();
-  if(target.app==="wallet"&&target.tab)state.currentWalletTab=target.tab;
-  log("mission_hint_navigation",{mission:key,to_app:target.app,to_tab:target.tab});
-  switchApp(target.app);
-  if(state.paymentStatus==="awaiting_passkey"&&state.pendingPurchaseTicketId){requestAnimationFrame(showPasskeySetup);return}
-  if((key==="payment"||key==="wallet")&&state.selectedTicketId&&!state.pendingPurchaseTicketId&&!missionStatus("acquire"))requestAnimationFrame(openPurchaseModal);
+    <button id="missionHintClose" class="mission-hint-go ${hint.app}" type="button">閉じる</button>`);
+  $("missionHintClose").onclick=closeModal;
 }
 
 function switchApp(app){
@@ -2051,21 +2032,17 @@ function completePurchase(){
   state.nftOwned=true;if(!state.completedAt)state.completedAt=now();
   state.paymentStatus="completed";
   log("nft_automatically_issued",{ticket_id:purchasedTicketId,owned_count:state.ownedNfts.length,delivery:"embedded_account",payment_method:state.paymentMethod,price_yen:ticketPriceYenById(purchasedTicketId)});
-  const airdropReward=maybeGrantAirdrop("purchase_threshold",purchaseWallet.id);
+  maybeGrantAirdrop("purchase_threshold",purchaseWallet.id);
   state.pendingPurchaseTicketId=null;state.pendingPurchaseWalletId=null;state.purchaseCompletesAt=null;closeModal();renderAll();
-  showNftAcquisitionSuccess(purchasedNft,airdropReward);
+  showNftAcquisitionSuccess(purchasedNft);
 }
-function showNftAcquisitionSuccess(purchasedNft,airdropReward=null){
+function showNftAcquisitionSuccess(purchasedNft){
   const t=tickets.find(item=>item.id===purchasedNft.ticketId);
   openModal("TICKET ACQUIRED","NFTチケットを取得しました",`
     <div class="completion-card"><div class="success-check">✓</div><h2>${escapeHtml(t?.title||"デジタルチケット")}</h2><p>お支払いが完了し、NFTチケットがPassWalletへ自動で追加されました。</p></div>
     <div class="summary" style="margin-top:15px"><div class="summary-row"><span>お支払い</span><strong>${fmtTicketYen(purchasedNft.priceYen)}</strong></div><div class="summary-row"><span>受取状況</span><strong>追加済み</strong></div></div>
-    <button id="viewPurchasedTicket" class="primary" style="width:100%;margin-top:15px" type="button">${airdropReward?"購入特典を確認する":"PassWalletで確認する"}</button>`,false);
-  $("viewPurchasedTicket").onclick=()=>{
-    closeModal();
-    if(airdropReward){showAirdropReward(airdropReward);return}
-    state.currentWalletTab="wallet-nft";switchApp("wallet");
-  };
+    <button id="closePurchasedTicket" class="primary" style="width:100%;margin-top:15px" type="button">閉じる</button>`,false);
+  $("closePurchasedTicket").onclick=closeModal;
 }
 function schedulePurchaseCompletion(delay){
   clearTimeout(purchaseTimer);purchaseTimer=setTimeout(completePurchase,Math.max(0,delay));
