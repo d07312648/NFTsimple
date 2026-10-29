@@ -555,7 +555,8 @@ function configureProgressGuide(mode){
   $("progressGuideLabel").textContent=completion?"COMPLETE":"GUIDE";
   $("progressGuideTitle").textContent=completion?"すべての進捗を達成しました":"進捗フローを確認";
   $("progressGuideDescription").textContent=completion?"ここまで体験していただき、ありがとうございました。":"進捗フローを参考にNFTチケットを獲得してください。";
-  $("progressGuideNote").textContent=completion?"「条件に応じて特典を付与する仕組み」を再現するため、各NFTチケットにゲームを用意しています。よろしければ、ゲームを楽しみながらNFTチケットを集めてみてください。また、マーケットではチケットを含む様々なNFTを売買できるようになっているので、興味があればぜひ体験してみてください。":"※チケット選択、決済、パスキー設定の順に進むと、NFTチケットがPassWalletへ自動で追加されます。";
+  $("progressGuideNote").textContent=completion?"「条件に応じて特典を付与する仕組み」を再現するため、各NFTチケットにゲームを用意しています。よろしければ、ゲームを楽しみながらNFTチケットを集めてみてください。また、マーケットではチケットを含む様々なNFTを売買できるようになっているので、興味があればぜひ体験してみてください。":"";
+  $("progressGuideNote").classList.toggle("hidden",!completion);
   $("progressGuideScrollNote").classList.toggle("hidden",completion);
   $("progressGuideHintNote").innerHTML=completion?'<span aria-hidden="true">✓</span>最後に、アンケートへのご回答をお願いいたします。':'<span aria-hidden="true">?</span>操作に困ったら、各進捗の「？」をタップすると操作のヒントを見ることができます。';
   $("progressGuideStart").innerHTML=completion?'続けてマーケットを体験する <span aria-hidden="true">→</span>':'閉じる <span aria-hidden="true">→</span>';
@@ -1295,10 +1296,9 @@ function renderWalletCreate(){
   walletContent.innerHTML=`
     <div class="dashboard-title"><div><span class="kicker">PASSWALLET</span><h1>PassWalletはまだ作成されていません</h1><p>チケットを購入し、パスキーを設定するとウォレットが作成されます。</p></div><span class="task-callout">パスキーで作成</span></div>
     <div class="balance-grid">
-      <div class="action-card"><h3>チケットを選んで決済</h3><p>決済後にパスキー（顔認証や指紋認証）を設定すると、PassWalletが自動で作成されます。</p><button id="createWallet" class="primary" type="button">チケットを選ぶ</button></div>
+      <div class="action-card"><h3>チケットを選んで決済</h3><p>決済後にパスキー（顔認証や指紋認証）を設定すると、PassWalletが自動で作成されます。</p><p>画面上部の「チケット購入」からチケットを選んでください。</p></div>
       <div class="notice info">パスワードやシードフレーズの管理は必要ありません。</div>
     </div>`;
-  $("createWallet").onclick=()=>switchApp("market");
 }
 function maskedPrivateKey(){return `0x${"•".repeat(64)}`}
 function privateKeyPanel(){
